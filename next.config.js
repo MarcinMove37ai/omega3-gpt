@@ -1,26 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Tymczasowo zostawiamy wyłączone sprawdzanie błędów
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: false
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: false
   },
-}
 
-// Dodajemy konfigurację cache
+  // Dodajemy konfigurację cache i optymalizacje
   experimental: {
-    enableBuildCache: true,
-    buildCacheDir: '.next/cache'
+    buildCache: true,
+    workerThreads: true,
+    optimizeCss: true
   },
 
   // Określamy jakie foldery powinny być cachowane
-  cache: {
-    directories: [
-      '.next/cache',
-      'node_modules/.cache'
-    ]
-  },
+  distDir: '.next',
 
   // Dodajemy optymalizacje produkcyjne
   swcMinify: true,
@@ -29,15 +25,27 @@ const nextConfig = {
   // Optymalizacja obrazów
   images: {
     domains: ['localhost'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 60
   },
-
-  // Optymalizacja komponentów serwerowych
-  serverComponents: true,
 
   // Konfiguracja środowiska
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
+  },
+
+  // Konfiguracja nagłówków cache
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      }
+    ]
   }
 }
 
