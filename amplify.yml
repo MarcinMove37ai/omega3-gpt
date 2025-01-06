@@ -1,11 +1,18 @@
 version: 1
 frontend:
   phases:
+    # IMPORTANT - Kolejność faz ma znaczenie
     preBuild:
       commands:
+        # Czyszczenie cache jeśli potrzebne
+        - if [ -f yarn.lock ]; then rm yarn.lock; fi
+        - if [ -d node_modules ]; then rm -rf node_modules; fi
+        - if [ -d .next ]; then rm -rf .next; fi
+        # Instalacja zależności
         - npm ci
     build:
       commands:
+        - echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" >> .env
         - npm run build
   artifacts:
     baseDirectory: .next
@@ -13,6 +20,22 @@ frontend:
       - '**/*'
   cache:
     paths:
+      # Cache dla node_modules
       - node_modules/**/*
+      # Cache dla Next.js
       - .next/cache/**/*
-      -
+      # Cache dla static files
+      - .next/static/**/*
+      # Cache dla public directory
+      - public/**/*
+      # Cache dla package-lock.json
+      - package-lock.json
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+    - pattern: '_next/static/**/*'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
