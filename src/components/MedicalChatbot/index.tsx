@@ -19,7 +19,7 @@ interface Message {
 
 interface ChatResponse {
   response: string;
-  sources: Array<any>;
+  sources: Array<Source>;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://vccgdem7g6.execute-api.eu-north-1.amazonaws.com/dev';
@@ -164,7 +164,7 @@ const columns = [
     key: 'index', // zmiana z 'similarity'
     label: 'Lp.',
     width: '60px', // możemy zmniejszyć szerokość, bo liczby porządkowe będą krótsze
-    format: (_: any, index: number) => (index + 1), // formatowanie zwraca numer porządkowy
+    format: (_: unknown, index: number) => (index + 1), // formatowanie zwraca numer porządkowy
   },
   {
     key: 'PMID',
@@ -210,21 +210,27 @@ const columns = [
     const debouncedHandleScroll = debounce(handleScroll, 10);
     scrollArea.addEventListener('scroll', debouncedHandleScroll);
 
+    // Zapisujemy referencję do timeoutRef w zmiennej przy montowaniu
+    const currentTimeoutRef = scrollTimeoutRef.current;
+
     return () => {
       scrollArea.removeEventListener('scroll', debouncedHandleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
+      if (currentTimeoutRef) {
+        clearTimeout(currentTimeoutRef);
       }
     };
-  }, []);
+  }, [SCROLL_THRESHOLD]); // Dodajemy SCROLL_THRESHOLD do zależności
 
-  const debounce = (func: Function, wait: number) => {
-    let timeout: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(null, args), wait);
+
+  type DebouncedFunction = (...args: unknown[]) => void;
+
+  const debounce = (func: DebouncedFunction, wait: number): DebouncedFunction => {
+      let timeout: NodeJS.Timeout;
+      return (...args: unknown[]) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
     };
-  };
 
   const prepareConversationHistory = () => {
   return messages.map(msg => ({

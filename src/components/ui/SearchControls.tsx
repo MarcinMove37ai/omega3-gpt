@@ -4,7 +4,6 @@ import { Slider } from '@/components/ui/slider';
 import { Layers, History, Settings } from 'lucide-react';
 import type { SearchParams } from '@/types';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- używane w typach
 interface SearchControlsProps {
   searchType: 'semantic' | 'statistical' | 'hybrid';
   setSearchType: (type: 'semantic' | 'statistical' | 'hybrid') => void;
