@@ -1,7 +1,7 @@
 'use client';
 
 import { SearchModule } from '@/lib/search_module';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SearchControls from '@/components/ui/SearchControls';
@@ -24,106 +24,7 @@ interface ChatResponse {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://vccgdem7g6.execute-api.eu-north-1.amazonaws.com/dev';
 
-// Example records to show after first interaction
-const exampleRecords = [
-  {
-    PMID: "10799369",
-    title: "Oczyszczone kwasy eikozapentaenowy i dokozaheksaenowy mają różne efekty na lipidy i lipoproteiny w surowicy, wielkość cząsteczek LDL, glukozę i insulinę u mężczyzn z łagodną hiperlipidemią.",
-    domain_primary: "kardiologia",
-    domain_secondary: "lipidy, lipoproteiny, metabolizm glukozy",
-    __nn_distance: 0.2,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10799369"
-  },
-  {
-    PMID: "10097422",
-    title: "Wpływ suplementacji diety rybami na poziomy lipidów",
-    domain_primary: "kardiologia",
-    domain_secondary: "hiperlipoproteinemia",
-    __nn_distance: 0.25,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10097422"
-  },
-  {
-    PMID: "10232625",
-    title: "Wpływ diety bogatej w kwas alfa-linolenowy na poziom lipidów",
-    domain_primary: "kardiologia",
-    domain_secondary: "czynniki ryzyka zakrzepicy",
-    __nn_distance: 0.3,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10232625"
-  },
-  // Dodaj pozostałe 9 rekordów z podobnymi danymi
-  {
-    PMID: "10356659",
-    title: "Wspólne działanie inhibitorów reduktazy HMG-CoA i kwasów omega-3",
-    domain_primary: "kardiologia",
-    domain_secondary: "hiperlipidemia",
-    __nn_distance: 0.28,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10356659"
-  },
-  {
-    PMID: "12518167",
-    title: "Wpływ oleju rybnego na utlenianie LDL",
-    domain_primary: "kardiologia",
-    domain_secondary: "miażdżyca",
-    __nn_distance: 0.32,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12518167"
-  },
-  {
-    PMID: "12530552",
-    title: "Wpływ EPA na średnią objętość płytek krwi",
-    domain_primary: "kardiologia",
-    domain_secondary: "funkcja płytek krwi",
-    __nn_distance: 0.27,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12530552"
-  },
-  {
-    PMID: "12558058",
-    title: "Wpływ spożycia kwasu alfa-linolenowego na ryzyko chorób serca",
-    domain_primary: "kardiologia",
-    domain_secondary: "choroba wieńcowa",
-    __nn_distance: 0.22,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12558058"
-  },
-  {
-    PMID: "12576957",
-    title: "Żywienie dojelitowe z kwasem eikozapentaenowym",
-    domain_primary: "pulmonologia",
-    domain_secondary: "ostry zespół niewydolności oddechowej",
-    __nn_distance: 0.35,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12576957"
-  },
-  {
-    PMID: "12583947",
-    title: "Związek kwasów tłuszczowych omega-3 z trwałością blaszek miażdżycowych",
-    domain_primary: "kardiologia",
-    domain_secondary: "miażdżyca",
-    __nn_distance: 0.24,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12583947"
-  },
-  {
-    PMID: "10419086",
-    title: "Podawanie kwasu dokozaheksaenowego wpływa na zmiany zachowania",
-    domain_primary: "neurologia",
-    domain_secondary: "stres psychologiczny",
-    __nn_distance: 0.31,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10419086"
-  },
-  {
-    PMID: "10232627",
-    title: "Spożycie diety z kwasem alfa-linolenowym a ryzyko chorób serca",
-    domain_primary: "kardiologia",
-    domain_secondary: "choroba niedokrwienna serca",
-    __nn_distance: 0.29,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10232627"
-  },
-  {
-    PMID: "12583947",
-    title: "Wpływ kwasów omega-3 na stabilność blaszek miażdżycowych",
-    domain_primary: "kardiologia",
-    domain_secondary: "miażdżyca",
-    __nn_distance: 0.26,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12583947"
-  }
-];
+
 
 const BANNER_HEIGHT = 40;
 const SCROLL_THRESHOLD = 200;
@@ -210,27 +111,21 @@ const columns = [
     const debouncedHandleScroll = debounce(handleScroll, 10);
     scrollArea.addEventListener('scroll', debouncedHandleScroll);
 
-    // Zapisujemy referencję do timeoutRef w zmiennej przy montowaniu
-    const currentTimeoutRef = scrollTimeoutRef.current;
-
     return () => {
       scrollArea.removeEventListener('scroll', debouncedHandleScroll);
-      if (currentTimeoutRef) {
-        clearTimeout(currentTimeoutRef);
-      }
     };
-  }, [SCROLL_THRESHOLD]); // Dodajemy SCROLL_THRESHOLD do zależności
+}, [debounce, setShowBanner]);
 
 
   type DebouncedFunction = (...args: unknown[]) => void;
 
-  const debounce = (func: DebouncedFunction, wait: number): DebouncedFunction => {
+  const debounce = useCallback((func: DebouncedFunction, wait: number): DebouncedFunction => {
       let timeout: NodeJS.Timeout;
       return (...args: unknown[]) => {
         clearTimeout(timeout);
         timeout = setTimeout(() => func(...args), wait);
       };
-    };
+    }, []);
 
   const prepareConversationHistory = () => {
   return messages.map(msg => ({
