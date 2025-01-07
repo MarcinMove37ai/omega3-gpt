@@ -1,5 +1,14 @@
-import MedicalChatbot from '@/components/MedicalChatbot';
+import dynamic from 'next/dynamic'
+
+const MedicalChatbot = dynamic(() => import('@/components/MedicalChatbot'), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+});
 
 export default function Home() {
-  return <MedicalChatbot />;
+  return (
+    <div suppressHydrationWarning>
+      <MedicalChatbot />
+    </div>
+  );
 }
