@@ -1,14 +1,5 @@
-import dynamic from 'next/dynamic'
-
-const MedicalChatbot = dynamic(() => import('@/components/MedicalChatbot'), {
-  ssr: false,
-  loading: () => <div>Loading...</div>
-});
+import ClientPage from '@/components/ClientPage'
 
 export default function Home() {
-  return (
-    <div suppressHydrationWarning>
-      <MedicalChatbot />
-    </div>
-  );
+  return <ClientPage />;
 }
