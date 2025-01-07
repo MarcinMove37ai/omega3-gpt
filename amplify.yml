@@ -8,10 +8,12 @@ frontend:
       commands:
         - env | grep -e NEXT_PUBLIC_ >> .env.production
         - npm run build
+        - npm run export
   artifacts:
-    baseDirectory: out
+    baseDirectory: .next/standalone
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
+      - .next/cache/**/*

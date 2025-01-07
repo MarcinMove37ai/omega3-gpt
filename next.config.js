@@ -6,7 +6,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
-  output: 'export',
+  output: 'standalone',
   distDir: '.next',
   images: {
     unoptimized: true
@@ -14,6 +14,17 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     workerThreads: true
+  },
+  // Wyłączamy generowanie statycznych stron
+  staticPageGenerationTimeout: 0,
+  // Wymuszamy tryb serverowy dla wszystkich stron
+  rewrites: async () => {
+    return [
+      {
+        source: '/:path*',
+        destination: '/:path*',
+      },
+    ]
   }
 }
 
