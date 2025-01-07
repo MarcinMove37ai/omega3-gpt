@@ -1,42 +1,16 @@
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+'use client';
 
-import React from 'react'
-import Link from 'next/link'
+import dynamic from 'next/dynamic';
 
-function Home() {
-  return (
-    <div id="app-root">
-      <MedicalChatbotLoader />
-    </div>
-  )
-}
+const MedicalChatbot = dynamic(
+  () => import('@/components/MedicalChatbot'),
+  { ssr: false }
+);
 
-// Komponent ładujący właściwy chatbot
-function MedicalChatbotLoader() {
+export default function Home() {
   return (
     <div suppressHydrationWarning>
-      <div id="medical-chatbot-root" suppressHydrationWarning>
-        Loading...
-      </div>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function loadApp() {
-              import('/components/MedicalChatbot').then(module => {
-                const MedicalChatbot = module.default;
-                const root = document.getElementById('medical-chatbot-root');
-                if (root) {
-                  const app = React.createElement(MedicalChatbot);
-                  ReactDOM.render(app, root);
-                }
-              });
-            })();
-          `,
-        }}
-      />
+      <MedicalChatbot />
     </div>
-  )
+  );
 }
-
-export default Home

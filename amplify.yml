@@ -3,27 +3,15 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Zachowujemy obecne czyszczenie
-        - if [ -f yarn.lock ]; then rm yarn.lock; fi
-        - if [ -d node_modules ]; then rm -rf node_modules; fi
-        - if [ -d .next ]; then rm -rf .next; fi
         - npm ci
     build:
       commands:
-        # Poprawiona obsługa zmiennych środowiskowych
         - env | grep -e NEXT_PUBLIC_ >> .env.production
         - npm run build
   artifacts:
-    baseDirectory: .next
+    baseDirectory: out
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
-      - .next/cache/**/*
-      - .next/static/**/*
-  customHeaders:
-    - pattern: '**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'public, max-age=31536000, immutable'

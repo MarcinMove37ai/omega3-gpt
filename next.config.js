@@ -6,19 +6,14 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
-  output: 'standalone',
+  output: 'export',
+  distDir: '.next',
+  images: {
+    unoptimized: true
+  },
   experimental: {
     optimizeCss: true,
-    workerThreads: true,
-  },
-  // Wyłączamy optymalizacje, które mogą powodować problemy
-  swcMinify: false,
-  // Ustawiamy wszystko jako dynamiczne
-  compiler: {
-    removeConsole: false,
-  },
-  generateBuildId: async () => {
-    return 'build-' + Date.now()
+    workerThreads: true
   }
 }
 
