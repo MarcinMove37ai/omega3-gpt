@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Tymczasowo zostawiamy wyłączone sprawdzanie błędów
+  // Zachowujemy obecne ignorowanie błędów
   eslint: {
     ignoreDuringBuilds: true
   },
@@ -8,27 +8,16 @@ const nextConfig = {
     ignoreBuildErrors: true
   },
 
-  // Dodajemy uproszczoną konfigurację eksperymentalną
+  // Dodajemy konfigurację dla output
+  output: 'standalone',
+
+  // Wymuszamy tryb dynamiczny
   experimental: {
     optimizeCss: true,
     workerThreads: true
   },
 
-  // Optymalizacja obrazów
-  images: {
-    domains: ['localhost'],
-    minimumCacheTTL: 60
-  },
-
-  // Konfiguracja środowiska
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
-  },
-
-  // Dodajemy cache poprzez output
-  output: 'standalone',
-
-  // Konfiguracja nagłówków cache
+  // Konfiguracja cache i headersów
   async headers() {
     return [
       {
