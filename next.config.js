@@ -6,25 +6,14 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
-  output: 'standalone',
-  distDir: '.next',
+  trailingSlash: true,
+  output: 'export',
   images: {
     unoptimized: true
   },
   experimental: {
-    optimizeCss: true,
-    workerThreads: true
-  },
-  // Wyłączamy generowanie statycznych stron
-  staticPageGenerationTimeout: 0,
-  // Wymuszamy tryb serverowy dla wszystkich stron
-  rewrites: async () => {
-    return [
-      {
-        source: '/:path*',
-        destination: '/:path*',
-      },
-    ]
+    optimizeCss: false, // Wyłączamy eksperymentalną optymalizację CSS
+    workerThreads: false // Wyłączamy wątki robocze
   }
 }
 

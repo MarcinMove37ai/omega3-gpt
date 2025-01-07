@@ -1,16 +1,8 @@
-'use client';
+import ClientPage from '@/components/ClientPage';
 
-import dynamic from 'next/dynamic';
-
-const MedicalChatbot = dynamic(
-  () => import('@/components/MedicalChatbot'),
-  { ssr: false }
-);
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function Home() {
-  return (
-    <div suppressHydrationWarning>
-      <MedicalChatbot />
-    </div>
-  );
+  return <ClientPage />;
 }
