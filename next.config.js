@@ -11,10 +11,12 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  experimental: {
-    optimizeCss: false, // Wyłączamy eksperymentalną optymalizację CSS
-    workerThreads: false // Wyłączamy wątki robocze
-  }
+  // Dodajemy konfigurację dla statycznego eksportu
+  exportPathMap: async function () {
+    return {
+      '/': { page: '/' }
+    };
+  },
+  // Wyłączamy wszystkie eksperymentalne funkcje
+  experimental: {}
 }
-
-module.exports = nextConfig

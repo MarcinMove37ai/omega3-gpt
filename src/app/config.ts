@@ -1,12 +1,5 @@
-// Globalne ustawienia dla Next.js App Router
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-export const fetchCache = 'force-no-store'
-export const runtime = 'nodejs'
+// Usuwamy wszystkie dynamiczne konfiguracje
 export const preferredRegion = 'auto'
 
-// Wyłącz generowanie statycznych stron
-export const generateStaticParams = () => []
-
-// Konfiguracja dynamicznego renderowania
-export const dynamicParams = true
+// Dodajemy domyślne wartości dla API
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://vccgdem7g6.execute-api.eu-north-1.amazonaws.com/dev';

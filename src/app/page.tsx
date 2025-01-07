@@ -1,8 +1,10 @@
 import ClientPage from '@/components/ClientPage';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
+// Usuwamy dynamic i revalidate
 export default function Home() {
-  return <ClientPage />;
+  return (
+    <div suppressHydrationWarning>
+      <ClientPage />
+    </div>
+  );
 }
