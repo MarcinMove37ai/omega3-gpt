@@ -19,7 +19,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Omega3 | GPT",
+  title: "Omega3 | GPT | public",
   description: "Chatbot z badaniami klinicznymi na temat kwasów omega-3",
   icons: {
     icon: '/favicon.ico',
