@@ -27,10 +27,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://vccgdem7g6.execute-a
 
 
 const BANNER_HEIGHT = 40;
-const SCROLL_THRESHOLD = 200;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SCROLL_DEBOUNCE = 200;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const SCROLL_THRESHOLD = 50;
+const SCROLL_DEBOUNCE = 500;
 const searchModule = new SearchModule();
 
 const MedicalChatbot = () => {
