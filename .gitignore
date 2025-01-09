@@ -1,6 +1,10 @@
 # Pliki środowiskowe
 *.env
 **/*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Logi i raporty
 *.log
@@ -14,6 +18,7 @@ __pycache__/
 
 # Next.js build i cache
 .next/
+out/
 
 # Webpack cache
 .cache/
@@ -27,7 +32,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Pliki generowane przez IDE
+# Pliki IDE
 .idea/
 .vscode/
 *.iml
@@ -63,7 +68,22 @@ public/assets/
 *.7z
 *.rar
 
+# Pliki multimedialne
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+
 # Specyficzne dla projektu
 backend/search/__pycache__/
 backend/search/api.log
 
+# AWS
+.aws/
+aws-exports.js
+aws-config.json
+
+# Lokalny development
+.vercel
+.env*.local

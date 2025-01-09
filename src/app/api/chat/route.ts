@@ -27,7 +27,18 @@ Formatuj swoje odpowiedzi według następującej struktury:
 6. Przy każdym istotnym stwierdzeniu lub wniosku ZAWSZE wskazuj praktyczne korzyści w sposób zrozumiały dla osób nie znających się na medycynie.
 7. Zakończ krótkim, praktycznym podsumowaniem odwołującym się bezpośrednio do pytania użytkownika`;
 
-function formatSearchResult(result: any, index: number) {
+interface FormattedSearchResult {
+  title: string;
+  journal?: string;
+  publication_date?: string;
+  __nn_distance?: number;
+  abstract?: string;
+  measured_outcomes?: string;
+  observed_outcomes?: string;
+  trial_population?: string;
+}
+
+function formatSearchResult(result: FormattedSearchResult, index: number) {
   const sections = [
     `[${index + 1}] Tytuł: ${result.title}`,
     `Czasopismo: ${result.journal || 'Brak informacji'}`,

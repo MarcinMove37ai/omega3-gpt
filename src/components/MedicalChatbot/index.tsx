@@ -1,7 +1,7 @@
 'use client';
 
 import { SearchModule } from '@/lib/search_module';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SearchControls from '@/components/ui/SearchControls';
@@ -19,109 +19,12 @@ interface Message {
 
 interface ChatResponse {
   response: string;
-  sources: Array<any>;
+  sources: Array<Source>;
 }
 
-// Example records to show after first interaction
-const exampleRecords = [
-  {
-    PMID: "10799369",
-    title: "Oczyszczone kwasy eikozapentaenowy i dokozaheksaenowy mają różne efekty na lipidy i lipoproteiny w surowicy, wielkość cząsteczek LDL, glukozę i insulinę u mężczyzn z łagodną hiperlipidemią.",
-    domain_primary: "kardiologia",
-    domain_secondary: "lipidy, lipoproteiny, metabolizm glukozy",
-    __nn_distance: 0.2,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10799369"
-  },
-  {
-    PMID: "10097422",
-    title: "Wpływ suplementacji diety rybami na poziomy lipidów",
-    domain_primary: "kardiologia",
-    domain_secondary: "hiperlipoproteinemia",
-    __nn_distance: 0.25,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10097422"
-  },
-  {
-    PMID: "10232625",
-    title: "Wpływ diety bogatej w kwas alfa-linolenowy na poziom lipidów",
-    domain_primary: "kardiologia",
-    domain_secondary: "czynniki ryzyka zakrzepicy",
-    __nn_distance: 0.3,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10232625"
-  },
-  // Dodaj pozostałe 9 rekordów z podobnymi danymi
-  {
-    PMID: "10356659",
-    title: "Wspólne działanie inhibitorów reduktazy HMG-CoA i kwasów omega-3",
-    domain_primary: "kardiologia",
-    domain_secondary: "hiperlipidemia",
-    __nn_distance: 0.28,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10356659"
-  },
-  {
-    PMID: "12518167",
-    title: "Wpływ oleju rybnego na utlenianie LDL",
-    domain_primary: "kardiologia",
-    domain_secondary: "miażdżyca",
-    __nn_distance: 0.32,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12518167"
-  },
-  {
-    PMID: "12530552",
-    title: "Wpływ EPA na średnią objętość płytek krwi",
-    domain_primary: "kardiologia",
-    domain_secondary: "funkcja płytek krwi",
-    __nn_distance: 0.27,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12530552"
-  },
-  {
-    PMID: "12558058",
-    title: "Wpływ spożycia kwasu alfa-linolenowego na ryzyko chorób serca",
-    domain_primary: "kardiologia",
-    domain_secondary: "choroba wieńcowa",
-    __nn_distance: 0.22,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12558058"
-  },
-  {
-    PMID: "12576957",
-    title: "Żywienie dojelitowe z kwasem eikozapentaenowym",
-    domain_primary: "pulmonologia",
-    domain_secondary: "ostry zespół niewydolności oddechowej",
-    __nn_distance: 0.35,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12576957"
-  },
-  {
-    PMID: "12583947",
-    title: "Związek kwasów tłuszczowych omega-3 z trwałością blaszek miażdżycowych",
-    domain_primary: "kardiologia",
-    domain_secondary: "miażdżyca",
-    __nn_distance: 0.24,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12583947"
-  },
-  {
-    PMID: "10419086",
-    title: "Podawanie kwasu dokozaheksaenowego wpływa na zmiany zachowania",
-    domain_primary: "neurologia",
-    domain_secondary: "stres psychologiczny",
-    __nn_distance: 0.31,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10419086"
-  },
-  {
-    PMID: "10232627",
-    title: "Spożycie diety z kwasem alfa-linolenowym a ryzyko chorób serca",
-    domain_primary: "kardiologia",
-    domain_secondary: "choroba niedokrwienna serca",
-    __nn_distance: 0.29,
-    url: "https://pubmed.ncbi.nlm.nih.gov/10232627"
-  },
-  {
-    PMID: "12583947",
-    title: "Wpływ kwasów omega-3 na stabilność blaszek miażdżycowych",
-    domain_primary: "kardiologia",
-    domain_secondary: "miażdżyca",
-    __nn_distance: 0.26,
-    url: "https://pubmed.ncbi.nlm.nih.gov/12583947"
-  }
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://vccgdem7g6.execute-api.eu-north-1.amazonaws.com/dev';
+
+
 
 const BANNER_HEIGHT = 40;
 const SCROLL_THRESHOLD = 50;
@@ -160,7 +63,7 @@ const columns = [
     key: 'index', // zmiana z 'similarity'
     label: 'Lp.',
     width: '60px', // możemy zmniejszyć szerokość, bo liczby porządkowe będą krótsze
-    format: (_: any, index: number) => (index + 1), // formatowanie zwraca numer porządkowy
+    format: (_: unknown, index: number) => (index + 1), // formatowanie zwraca numer porządkowy
   },
   {
     key: 'PMID',
@@ -208,19 +111,19 @@ const columns = [
 
     return () => {
       scrollArea.removeEventListener('scroll', debouncedHandleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
     };
-  }, []);
+}, [debounce, setShowBanner]);
 
-  const debounce = (func: Function, wait: number) => {
-    let timeout: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(null, args), wait);
-    };
-  };
+
+  type DebouncedFunction = (...args: unknown[]) => void;
+
+  const debounce = useCallback((func: DebouncedFunction, wait: number): DebouncedFunction => {
+      let timeout: NodeJS.Timeout;
+      return (...args: unknown[]) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    }, []);
 
   const prepareConversationHistory = () => {
   return messages.map(msg => ({
@@ -237,32 +140,36 @@ const handleSendMessage = async (e: React.FormEvent) => {
   setHasInteracted(true);
 
   const newMessage = {
-      type: 'user' as const,
-      role: 'user' as const,
-      content: inputValue.trim(),
-      originalMessage: inputValue.trim(), // Dodajemy to pole
-      timestamp: Date.now()
-    };
+    type: 'user' as const,
+    role: 'user' as const,
+    content: inputValue.trim(),
+    originalMessage: inputValue.trim(),
+    timestamp: Date.now()
+  };
 
   setMessages(prev => [...prev, newMessage]);
 
   try {
+    console.log('Sending request to:', `${API_URL}/chat`);
+
     const requestBody = {
       message: inputValue,
       conversationHistory: messages,
       searchParams: {
         search_type: searchType,
-        query_mode: queryMode,  // Dodajemy nowy parametr
+        query_mode: queryMode,
         top_k: topK,
         alpha: searchType === 'hybrid' ? alpha : undefined
       }
     };
 
-    const response = await fetch('/api/chat', {
+    const response = await fetch(`${API_URL}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Origin': window.location.origin
       },
+      credentials: 'include',
       body: JSON.stringify(requestBody)
     });
 
@@ -270,7 +177,8 @@ const handleSendMessage = async (e: React.FormEvent) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as ChatResponse;
+    console.log('Response data:', data);
 
     if (data.error) {
       throw new Error(data.error);
@@ -289,7 +197,7 @@ const handleSendMessage = async (e: React.FormEvent) => {
     setMessages(prev => [...prev, {
       type: 'assistant',
       role: 'assistant',
-      content: 'Wystąpił błąd podczas przetwarzania zapytania.',
+      content: `Błąd połączenia z API: ${error instanceof Error ? error.message : 'Unknown error'}`,
       timestamp: Date.now()
     }]);
   } finally {

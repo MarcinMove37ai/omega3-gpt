@@ -1,5 +1,10 @@
-import MedicalChatbot from '@/components/MedicalChatbot';
+import ClientPage from '@/components/ClientPage';
 
+// Usuwamy dynamic i revalidate
 export default function Home() {
-  return <MedicalChatbot />;
+  return (
+    <div suppressHydrationWarning>
+      <ClientPage />
+    </div>
+  );
 }

@@ -39,7 +39,6 @@ interface ChatResponse {
   sources: Source[];
 }
 
-// Typy dla modułu wyszukiwania
 interface SearchModuleParams {
   queries: string[];
   searchType: 'semantic' | 'statistical' | 'hybrid';
